@@ -5,7 +5,7 @@
     
   <url>
     <loc>http://fe.58qf.com/2018/06/26/%E7%BB%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%B7%A8%E5%B9%B3%E5%8F%B0%E7%A7%BB%E5%8A%A8%E7%AB%AF%E5%9B%A2%E9%98%9F%EF%BC%88%E8%AF%91%EF%BC%89/</loc>
-    <lastmod>2018-06-26T09:16:51.000Z</lastmod>
+    <lastmod>2018-06-26T09:22:14.000Z</lastmod>
     <data>
         <display>
         <title>组建一个跨平台移动端团队（译）</title>
@@ -22,13 +22,47 @@
     
   <url>
     <loc>http://fe.58qf.com/2018/06/25/Airbnb%20%E7%9A%84%20React%20Native%20%E7%BB%8F%E9%AA%8C/</loc>
-    <lastmod>2018-06-26T08:33:44.000Z</lastmod>
+    <lastmod>2018-06-26T09:21:53.000Z</lastmod>
     <data>
         <display>
         <title>Airbnb 的 React Native 经验(译)</title>
         <pubTime>2018-06-25T07:15:30.000Z</pubTime>
         
         <tag>React Native</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://fe.58qf.com/2017/11/07/Android-GitLabCi%E7%9A%84%E9%85%8D%E7%BD%AE/</loc>
+    <lastmod>2018-06-25T07:24:04.000Z</lastmod>
+    <data>
+        <display>
+        <title>Android GitLabCi的配置</title>
+        <pubTime>2017-11-07T07:10:50.000Z</pubTime>
+        
+        <tag>gitlab</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://fe.58qf.com/2017/11/13/charles/</loc>
+    <lastmod>2018-06-25T07:24:04.000Z</lastmod>
+    <data>
+        <display>
+        <title>charles常用功能的简要说明</title>
+        <pubTime>2017-11-13T06:23:00.000Z</pubTime>
+        
+        <tag>charles  代理服务器   移动端开发抓包</tag>
          
          
            
@@ -59,23 +93,6 @@
 
     
   <url>
-    <loc>http://fe.58qf.com/2017/11/07/Android-GitLabCi%E7%9A%84%E9%85%8D%E7%BD%AE/</loc>
-    <lastmod>2018-06-25T07:24:04.000Z</lastmod>
-    <data>
-        <display>
-        <title>Android GitLabCi的配置</title>
-        <pubTime>2017-11-07T07:10:50.000Z</pubTime>
-        
-        <tag>gitlab</tag>
-         
-         
-           
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://fe.58qf.com/2017/11/14/npm-package-version/</loc>
     <lastmod>2018-06-25T07:24:04.000Z</lastmod>
     <data>
@@ -84,23 +101,6 @@
         <pubTime>2017-11-14T02:59:08.000Z</pubTime>
         
         <tag>npm</tag>
-         
-         
-           
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://fe.58qf.com/2017/11/13/charles/</loc>
-    <lastmod>2018-06-25T07:24:04.000Z</lastmod>
-    <data>
-        <display>
-        <title>charles常用功能的简要说明</title>
-        <pubTime>2017-11-13T06:23:00.000Z</pubTime>
-        
-        <tag>charles  代理服务器   移动端开发抓包</tag>
          
          
            
