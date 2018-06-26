@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="React Native," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="作者：Gabriel Peal翻译：Rebecca Han  2016年，我们在 React Native 上投入非常多。两年后，我们已经准备好跟世界分享经验并聊聊接下来要做的事情。  这是首次在连载的博客中披露我们使用 React Native 的经验和 Airbnb 在移动端方面接下来的动作。 在十年前 Airbnb 诞生时，智能手机还处在发展初期。自那时起，智能手机就变成了不可或缺的工具，引">
+<meta name="keywords" content="React Native">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Airbnb 的 React Native 经验(译)">
+<meta property="og:url" content="http://fe.58qf.com/2018/06/25/Airbnb 的 React Native 经验/index.html">
+<meta property="og:site_name" content="58QF FE">
+<meta property="og:description" content="作者：Gabriel Peal翻译：Rebecca Han  2016年，我们在 React Native 上投入非常多。两年后，我们已经准备好跟世界分享经验并聊聊接下来要做的事情。  这是首次在连载的博客中披露我们使用 React Native 的经验和 Airbnb 在移动端方面接下来的动作。 在十年前 Airbnb 诞生时，智能手机还处在发展初期。自那时起，智能手机就变成了不可或缺的工具，引">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://cdn.58qf.com/blog-images/react-native/15295502446088-1.jpg">
+<meta property="og:updated_time" content="2018-06-26T08:33:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Airbnb 的 React Native 经验(译)">
+<meta name="twitter:description" content="作者：Gabriel Peal翻译：Rebecca Han  2016年，我们在 React Native 上投入非常多。两年后，我们已经准备好跟世界分享经验并聊聊接下来要做的事情。  这是首次在连载的博客中披露我们使用 React Native 的经验和 Airbnb 在移动端方面接下来的动作。 在十年前 Airbnb 诞生时，智能手机还处在发展初期。自那时起，智能手机就变成了不可或缺的工具，引">
+<meta name="twitter:image" content="http://cdn.58qf.com/blog-images/react-native/15295502446088-1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://fe.58qf.com/2018/06/25/Airbnb 的 React Native 经验/"/>
+
+
+
+
+
+  <title>Airbnb 的 React Native 经验(译) | 58QF FE</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-109321141-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">58QF FE</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Live and learn</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://fe.58qf.com/2018/06/25/Airbnb 的 React Native 经验/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="qf-fe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="58QF FE">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Airbnb 的 React Native 经验(译)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                    <a href="mailto:rebecca_jwhan@163.com">Rebecca_Han</a>
+              
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-25T15:15:30+08:00">
+                2018-06-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>作者：Gabriel Peal<br>翻译：Rebecca Han</p>
+<hr>
+<p>2016年，我们在 React Native 上投入非常多。两年后，我们已经准备好跟世界分享经验并聊聊接下来要做的事情。</p>
+<p><img src="http://cdn.58qf.com/blog-images/react-native/15295502446088-1.jpg" alt="15295502446088"></p>
+<p>这是首次在连载的博客中披露我们使用 React Native 的经验和 Airbnb 在移动端方面接下来的动作。</p>
+<p>在十年前 Airbnb 诞生时，智能手机还处在发展初期。自那时起，智能手机就变成了不可或缺的工具，引领着我们每天的生活，尤其是越来越多的人开始在世界各地旅行。作为一个可以让数百万人拥有新的出行模式的社区，拥有一个世界级的 APP 显得尤为重要。当离家很远时，移动设备就成为了主要的，或者说是唯一的交流形式。</p>
+<p>从2008年最初的三名旅客落脚在 Rausch Street 到现在，移动端的使用从0增长到每年上百万的预定。我们的 apps 能让房主在外出的时候也能够管理登记列表，同时也能为旅客提供灵感，让他们在指尖上就能发现新的地方和体验。</p>
+<p>为了跟上移动使用加速的步伐，我们的团队发展到了超过100名移动工程师，来支持新的体验以及提升现有的体验。</p>
+<h4 id="将赌注压在-React-Native-上"><a href="#将赌注压在-React-Native-上" class="headerlink" title="将赌注压在 React Native 上"></a>将赌注压在 React Native 上</h4><p>我们在持续评估新的技术，用来为房主和旅客提升使用 Airbnb 的体验，迅速行动，以及保持良好的开发者体验。2016年，React Native 便是其中一个。当时，我们已经意识到移动端对业务发展来说有多重要，但又没有足够的移动端工程师来实现业务目标。因此，我们便开始探索可替代的方案。Web 端站点是基于 React 构建的，且 React 在 Airbnb 内部一直是一个高效又普遍受欢迎的 web 框架。正因如此，我们认为 React Native 能够成为一个机会，使得移动开发可以面向更多工程师开放，以及可以利用其跨平台特性快速的发布代码。</p>
+<p>我们开始在 React Native 上边投入时，就知道是存在风险的。这意味着在代码库中添加一个全新的，快速发展的，未经过验证的平台，这个平台会将项目分解，而不是统一起来。同时我们也清楚，如果要在 React Native 上投入，那就希望把它做好。我们对 React Native 的期望是：</p>
+<ol>
+<li>能够让我们作为组织加快步伐</li>
+<li>能保证原生应用那样的质量标准</li>
+<li>移动端只写一套业务代码，而不是两套</li>
+<li>提升开发体验</li>
+</ol>
+<h4 id="我们的经验"><a href="#我们的经验" class="headerlink" title="我们的经验"></a>我们的经验</h4><p>在过去的两年间，我们已经在 apps 中构建了非常强大的集成，以支持复杂的原生特性，如共享元素过渡、视差和地理围栏，以及连接到我们现有的本地基础设施，如网络、实验和国际化。</p>
+<p>Airbnb 已经推出了一系列使用 React Native 开发的产品。使用 React Native，我们推出了 <a href="https://www.airbnb.com/s/experiences" target="_blank" rel="external">“Experiences”</a> 这款产品，这是 Airbnb 的新业务，还有从评论到礼品卡的一系列功能。这里边很多的功能都是在没有足够的 native 工程师来实现的情况下构建的。</p>
+<p>不同的团队对于 React Native 都有着广泛的经验。React Native 被认为是不可思议的工具，同时又会给人带来技术和组织上的挑战。在这个系列的文章中，我们会详细介绍在使用过程中的经验，和接下来要做的事情。</p>
+<p><a href="https://medium.com/airbnb-engineering/react-native-at-airbnb-the-technology-dafd0b43838" target="_blank" rel="external">在第二部分中</a>，列举了 React Native 技术中哪些是有用的，哪些是无用的。</p>
+<p><a href="https://medium.com/airbnb-engineering/building-a-cross-platform-mobile-team-3e1837b40a88" target="_blank" rel="external">在第三部分中</a>， 列举了跟组建跨平台移动团队相关的组织方面的挑战。（<a href="">译文</a>）</p>
+<p><a href="https://medium.com/airbnb-engineering/sunsetting-react-native-1868ba28e30a" target="_blank" rel="external">第四部分中</a>，强调了现在我们对于 React Native 的立场，以及它未来在 Airbnb 中的角色。</p>
+<p><a href="https://medium.com/airbnb-engineering/whats-next-for-mobile-at-airbnb-5e71618576ab" target="_blank" rel="external">第五部分</a>，介绍了我们用从 React Native 中学到的知识，去使原生变得更好。</p>
+<hr>
+<h6 id="翻译：Rebecca-Han"><a href="#翻译：Rebecca-Han" class="headerlink" title="翻译：Rebecca Han"></a>翻译：Rebecca Han</h6><h6 id="译自-Gabriel-Peal（Airbnb-工程师）-发表在-Medium-上的文章。"><a href="#译自-Gabriel-Peal（Airbnb-工程师）-发表在-Medium-上的文章。" class="headerlink" title="译自 Gabriel Peal（Airbnb 工程师） 发表在 Medium 上的文章。"></a>译自 Gabriel Peal（Airbnb 工程师） 发表在 Medium 上的文章。</h6><h6 id="原文链接：-https-medium-com-airbnb-engineering-react-native-at-airbnb-f95aa460be1c"><a href="#原文链接：-https-medium-com-airbnb-engineering-react-native-at-airbnb-f95aa460be1c" class="headerlink" title="原文链接： https://medium.com/airbnb-engineering/react-native-at-airbnb-f95aa460be1c"></a>原文链接： <a href="https://medium.com/airbnb-engineering/react-native-at-airbnb-f95aa460be1c" target="_blank" rel="external">https://medium.com/airbnb-engineering/react-native-at-airbnb-f95aa460be1c</a></h6>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/React-Native/" rel="tag"># React Native</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/14/npm-package-version/" rel="next" title="npm常用指令和版本号浅析">
+                <i class="fa fa-chevron-left"></i> npm常用指令和版本号浅析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="qf-fe" />
+          <p class="site-author-name" itemprop="name">qf-fe</p>
+           
+              <p class="site-description motion-element" itemprop="description">企服前端团队Blog</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/QiFuFE" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#将赌注压在-React-Native-上"><span class="nav-number">1.</span> <span class="nav-text">将赌注压在 React Native 上</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#我们的经验"><span class="nav-number">2.</span> <span class="nav-text">我们的经验</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#翻译：Rebecca-Han"><span class="nav-number">2.0.1.</span> <span class="nav-text">翻译：Rebecca Han</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#译自-Gabriel-Peal（Airbnb-工程师）-发表在-Medium-上的文章。"><span class="nav-number">2.0.2.</span> <span class="nav-text">译自 Gabriel Peal（Airbnb 工程师） 发表在 Medium 上的文章。</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#原文链接：-https-medium-com-airbnb-engineering-react-native-at-airbnb-f95aa460be1c"><span class="nav-number">2.0.3.</span> <span class="nav-text">原文链接： https://medium.com/airbnb-engineering/react-native-at-airbnb-f95aa460be1c</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">qf-fe</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

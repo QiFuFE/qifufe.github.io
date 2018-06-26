@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="node.js,rpc,service," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Dubbo 传输协议 Dubbo缺省协议采用单一长连接和NIO异步通讯，适合于小数据量大并发的服务调用，以及服务消费者机器数远大于服务提供者机器数的情况。  协议格式&amp;lt;header&amp;gt;&amp;lt;bodydata&amp;gt;  12345678910111213+---------------------------------------------------------------+|">
+<meta name="keywords" content="node.js,rpc,service">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js 通过默认的 Hessian2 协议调用 Dubbo 服务">
+<meta property="og:url" content="http://fe.58qf.com/2017/11/07/node-dubbo/index.html">
+<meta property="og:site_name" content="58QF FE">
+<meta property="og:description" content="Dubbo 传输协议 Dubbo缺省协议采用单一长连接和NIO异步通讯，适合于小数据量大并发的服务调用，以及服务消费者机器数远大于服务提供者机器数的情况。  协议格式&amp;lt;header&amp;gt;&amp;lt;bodydata&amp;gt;  12345678910111213+---------------------------------------------------------------+|">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://cdn.58qf.com/blog-images/dubbo/dubbo-protocol.png">
+<meta property="og:updated_time" content="2018-06-25T07:24:04.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Node.js 通过默认的 Hessian2 协议调用 Dubbo 服务">
+<meta name="twitter:description" content="Dubbo 传输协议 Dubbo缺省协议采用单一长连接和NIO异步通讯，适合于小数据量大并发的服务调用，以及服务消费者机器数远大于服务提供者机器数的情况。  协议格式&amp;lt;header&amp;gt;&amp;lt;bodydata&amp;gt;  12345678910111213+---------------------------------------------------------------+|">
+<meta name="twitter:image" content="http://cdn.58qf.com/blog-images/dubbo/dubbo-protocol.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://fe.58qf.com/2017/11/07/node-dubbo/"/>
+
+
+
+
+
+  <title>Node.js 通过默认的 Hessian2 协议调用 Dubbo 服务 | 58QF FE</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-109321141-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">58QF FE</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Live and learn</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://fe.58qf.com/2017/11/07/node-dubbo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="qf-fe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="58QF FE">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Node.js 通过默认的 Hessian2 协议调用 Dubbo 服务</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                    <a href="mailto:zhcsyncer@gmail.com">zhcsyncer</a>
+              
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-07T14:53:00+08:00">
+                2017-11-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="Dubbo-传输协议"><a href="#Dubbo-传输协议" class="headerlink" title="Dubbo 传输协议"></a>Dubbo 传输协议</h4><blockquote>
+<p>Dubbo缺省协议采用单一长连接和NIO异步通讯，适合于小数据量大并发的服务调用，以及服务消费者机器数远大于服务提供者机器数的情况。</p>
+</blockquote>
+<h5 id="协议格式"><a href="#协议格式" class="headerlink" title="协议格式"></a>协议格式</h5><pre><code>&lt;header&gt;&lt;bodydata&gt;
+</code></pre><p><img src="http://cdn.58qf.com/blog-images/dubbo/dubbo-protocol.png" alt="dubbo 示意图"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">+---------------------------------------------------------------+</div><div class="line">|                                                               |</div><div class="line">|                         Flag Byte                             |</div><div class="line">|                                                               |</div><div class="line">+------------+------------+---------+------+--------------------+</div><div class="line">|            |            |                |                    |</div><div class="line">|     1      |     1      |        1       |       00010        |</div><div class="line">|            |            |                |                    |</div><div class="line">+---------------------------------------------------------------+</div><div class="line">|            |            |                |                    |</div><div class="line">| is request | is two way |     is ping    | transport protocol |</div><div class="line">|            |            |                |                    |</div><div class="line">+------------+------------+---------+------+--------------------+</div></pre></td></tr></table></figure>
+<hr>
+<h4 id="协议头部"><a href="#协议头部" class="headerlink" title="协议头部"></a>协议头部</h4><blockquote>
+<p>header 是16个字节的定长数据, 由以下各部分组成:</p>
+</blockquote>
+<ol>
+<li><p>两个字节的为协议约定魔数 //short类型的MAGIC = (short) 0xdabb</p>
+</li>
+<li><p>1个字节的标志位。低5位用来表示消息体数据用的序列化工具的类型（默认hessian），高三位中，第一位为1表示是request请求，第二位为1表示双向传输（即有返回response），第三位为1表示是心跳ping事件。如: <code>0b11000010</code></p>
+</li>
+<li><p>1个字节的状态位，消息类型为 <code>response</code> 时，设置请求响应状态, 详见 <a href="../src/enum/ResponseStatus.ts">ResponseStatus</a></p>
+</li>
+<li><p>8个字节的消息 id , 64位long类型, So, 然而 <code>node</code> 里面并不支持.</p>
+</li>
+<li><p>4个字节表达消息体<code>body</code>长度, 32位int类型</p>
+</li>
+</ol>
+<hr>
+<h4 id="协议消息体"><a href="#协议消息体" class="headerlink" title="协议消息体"></a>协议消息体</h4><blockquote>
+<p>消息体是本次远程调用的真正内容, 采用 <code>Hessian</code> 序列化, 具体由以下各部分组成:</p>
+</blockquote>
+<ol>
+<li><p>dubbo的版本信息</p>
+</li>
+<li><p>服务接口名如：com.user.UserService</p>
+</li>
+<li><p>服务的版本号</p>
+</li>
+<li><p>调用服务的方法名, 如: <code>getUserInfoById</code></p>
+</li>
+<li><p>调服务的方法的参数描述符如：[int.class, boolean[].class,Object.class] =&gt; “I[ZLjava/lang/Object;”</p>
+</li>
+<li><p>遍历传输的参数值逐个序列化</p>
+</li>
+<li><p>将整个附属信息map对象attachments序列化</p>
+</li>
+</ol>
+<p>以下是<code>java</code>客户端中序列化Request的body的具体代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">protected void encodeRequestData(Channel channel, ObjectOutput out, Object data)&#123;</div><div class="line">    RpcInvocation inv = (RpcInvocation) data;</div><div class="line">    out.writeUTF(inv.getAttachment(Constants.DUBBO_VERSION_KEY,DUBBO_VERSION));</div><div class="line">    out.writeUTF(inv.getAttachment(Constants.PATH_KEY));</div><div class="line">    out.writeUTF(inv.getAttachment(Constants.VERSION_KEY));</div><div class="line">    out.writeUTF(inv.getMethodName());</div><div class="line">    out.writeUTF(ReflectUtils.getDesc(inv.getParamterTypes()));</div><div class="line">    Object[] args = inv.getArguments();</div><div class="line">    if(args != null)</div><div class="line">    for(int i=0;i &lt; args.length;i++)&#123;</div><div class="line">        out.writeObject(encodeInvocationArgument(channel,inv,i));</div><div class="line">    &#125;</div><div class="line">    out.writeObject(inv.getAttachments());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以下为<code>java</code>服务端中序列化Response的具体代码:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">protected void encodeResponseData(Channel channel, ObjectOutput out, Object data) &#123;</div><div class="line">    Result result = (Result) data;</div><div class="line">    Throwable th = result.getException();</div><div class="line">    if(th == null)&#123;</div><div class="line">        Object ret = result.getValue();</div><div class="line">        if(ret == null)&#123;</div><div class="line">            out.writeByte(RESPONSE_NULL_VALUE);</div><div class="line">        &#125; else &#123;</div><div class="line">            out.writeByte(RESPONSE_VALUE);</div><div class="line">            out.writeByte(ret);</div><div class="line">        &#125;</div><div class="line">    &#125; else &#123;</div><div class="line">        out.writeByte(RESPONSE_WITH_EXCEPTION);</div><div class="line">        out.writeByte(th);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="编码整体流程"><a href="#编码整体流程" class="headerlink" title="编码整体流程"></a>编码整体流程</h4><ol>
+<li><p>构建存储header的字节数组，大小是16</p>
+</li>
+<li><p>Header数组前两个字节写入dubbo协议魔数(short) <code>[0xda,0xbb]</code></p>
+</li>
+<li><p>Header数组第三个字节, 分二进制位:</p>
+<ol>
+<li><p>第一位设置为1, 标识为请求类型消息</p>
+</li>
+<li><p>设置为 1 表示 <code>twoway</code> 否则 <code>oneway</code></p>
+</li>
+<li><p>心跳，还是正常消息</p>
+</li>
+<li><p>低 5 位放置序列化方式标识ID, <code>Hessian2</code> 序列化协议对应的序列化实现类 <a href="https://github.com/alibaba/dubbo/blob/e2d63ad98a278e05ab13ee75dbff9ef302709cf2/dubbo-common/src/main/java/com/alibaba/dubbo/common/serialize/support/dubbo/DubboSerialization.java#L32-L34" target="_blank" rel="external">com.alibaba.dubbo.common.serialize.support.hessian.Hessian2Serialization</a> 中重载方法如下:</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public static final byte ID = 2;</div><div class="line"></div><div class="line">public byte getContentTypeId() &#123;</div><div class="line">    return ID;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p>序列化消息体, 将长度 <code>32位int</code> 类型写入 Header 数组后4个字节.</p>
+<p> So, 请求包最终的 Buffer 大致如下:<br>[0xda, 0xbb, 0xc1(0b11000010), 0 ,第5至12个字节为消息 id, 最后4个字节写入消息体长度]</p>
+</li>
+</ol>
+<h4 id="解码整体流程"><a href="#解码整体流程" class="headerlink" title="解码整体流程"></a>解码整体流程</h4><blockquote>
+<p>既然编码的具体流程已经列出, 那么响应消息头部的解码方式不用细说了, 只提消息体.</p>
+</blockquote>
+<ol>
+<li><p>Header[2] 第三个字节获取相应的标志位</p>
+</li>
+<li><p>从标志位判断采用哪种序列化方式，获取具体的序列化工具</p>
+</li>
+<li><p>读取header[4]开始的8位， 获取消息的id (如果不需要 tcp 连接复用的话, 其实 id 并没有什么用处, 否则需要此 id 来标识异步获取到的数据究竟属于哪一次调用的上下文)</p>
+</li>
+<li><p>根据 Header[3] 判断响应状态</p>
+</li>
+<li><p>响应状态位为 20 则采用对应的序列化协议反序列化消息体</p>
+</li>
+<li><p>读取第一位判断是 <code>null</code> 或是 具体的响应数据, 还是携带远程的异常错误堆栈信息.</p>
+</li>
+</ol>
+<p>参考:<br><a href="http://blog.csdn.net/quhongwei_zhanqiu/article/details/41702829" target="_blank" rel="external">Dubbo原理解析-编码解码之编码解码流程</a></p>
+<p><a href="http://www.bijishequ.com/detail/526770" target="_blank" rel="external">dubbo协议报文格式</a></p>
+<p><a href="http://cxis.me/2017/03/19/Dubbo%E4%B8%AD%E7%BC%96%E7%A0%81%E5%92%8C%E8%A7%A3%E7%A0%81%E7%9A%84%E8%A7%A3%E6%9E%90/" target="_blank" rel="external">Dubbo中编码和解码的解析</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/node-js/" rel="tag"># node.js</a>
+          
+            <a href="/tags/rpc/" rel="tag"># rpc</a>
+          
+            <a href="/tags/service/" rel="tag"># service</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/07/Android-GitLabCi的配置/" rel="prev" title="Android GitLabCi的配置">
+                Android GitLabCi的配置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="qf-fe" />
+          <p class="site-author-name" itemprop="name">qf-fe</p>
+           
+              <p class="site-description motion-element" itemprop="description">企服前端团队Blog</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/QiFuFE" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Dubbo-传输协议"><span class="nav-number">1.</span> <span class="nav-text">Dubbo 传输协议</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#协议格式"><span class="nav-number">1.1.</span> <span class="nav-text">协议格式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#协议头部"><span class="nav-number">2.</span> <span class="nav-text">协议头部</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#协议消息体"><span class="nav-number">3.</span> <span class="nav-text">协议消息体</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编码整体流程"><span class="nav-number">4.</span> <span class="nav-text">编码整体流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解码整体流程"><span class="nav-number">5.</span> <span class="nav-text">解码整体流程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">qf-fe</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
